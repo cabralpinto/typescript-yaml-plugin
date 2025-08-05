@@ -1,0 +1,9 @@
+{
+  "name": "typescript-yaml-plugin",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "./dist",
+  "dependencies": {
+    "typescript": "^5.9.2"
+  }
+}
