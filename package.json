@@ -4,6 +4,7 @@
   "license": "MIT",
   "main": "./dist",
   "scripts": {
+    "build": "tsc",
     "format": "prettier --write ."
   },
   "dependencies": {
