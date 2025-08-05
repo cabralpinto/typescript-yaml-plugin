@@ -1,22 +1,21 @@
-import fs from "fs";
-import path from "path";
-import type ts from "typescript/lib/tsserverlibrary";
-import YAML from "yaml";
+import fs from 'fs';
+import path from 'path';
+import type ts from 'typescript/lib/tsserverlibrary';
+import YAML from 'yaml';
 
 export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
   create: (info: ts.server.PluginCreateInfo) => {
     const logger = info.project.projectService.logger;
     const languageServiceHost = {
-      getScriptKind: (filename) => {
-        if (!info.languageServiceHost.getScriptKind)
-          return ts_.ScriptKind.Unknown;
+      getScriptKind: filename => {
+        if (!info.languageServiceHost.getScriptKind) return ts_.ScriptKind.Unknown;
         if (/\.ya?ml$/.test(filename)) return ts_.ScriptKind.TS;
         return info.languageServiceHost.getScriptKind(filename);
       },
-      getScriptSnapshot: (filename) => {
+      getScriptSnapshot: filename => {
         if (!/\.ya?ml$/.test(filename))
           return info.languageServiceHost.getScriptSnapshot(filename);
-        const content = fs.readFileSync(filename, "utf8");
+        const content = fs.readFileSync(filename, 'utf8');
         let object;
         try {
           object = YAML.parse(content);
@@ -39,18 +38,15 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
             resolvedModule: {
               extension: ts_.Extension.Ts,
               isExternalLibraryImport: false,
-              resolvedFileName: path.resolve(
-                path.dirname(containingFile),
-                moduleName
-              ),
-            },
+              resolvedFileName: path.resolve(path.dirname(containingFile), moduleName)
+            }
           };
-        }),
+        })
     } as Partial<ts.LanguageServiceHost>;
     const languageServiceHostProxy = new Proxy(info.languageServiceHost, {
       get: (target, key: keyof ts.LanguageServiceHost) =>
-        languageServiceHost[key] ? languageServiceHost[key] : target[key],
+        languageServiceHost[key] ? languageServiceHost[key] : target[key]
     });
     return ts_.createLanguageService(languageServiceHostProxy);
-  },
+  }
 });

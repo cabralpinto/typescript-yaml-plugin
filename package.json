@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "license": "MIT",
   "main": "./dist",
+  "scripts": {
+    "format": "prettier --write ."
+  },
   "dependencies": {
     "typescript": "^5.9.2",
     "yaml": "^2.8.1"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0"
+    "@types/node": "^24.2.0",
+    "prettier": "^3.6.2"
   }
 }
