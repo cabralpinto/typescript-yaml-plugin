@@ -1,8 +1,11 @@
 {
   "name": "typescript-yaml-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
-  "main": "./dist",
+  "main": "./dist/index.js",
+  "files": [
+    "./dist"
+  ],
   "scripts": {
     "build": "tsc",
     "format": "prettier --write ."
