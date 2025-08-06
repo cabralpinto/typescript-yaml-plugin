@@ -4,7 +4,7 @@
 [![license](https://img.shields.io/npm/l/typescript-yaml-plugin)](https://github.com/cabralpinto/typescript-yaml-plugin/blob/main/LICENSE)
 [![ts](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 
-Import `.yaml` files in TypeScript with autocomplete and type checking.
+Import `.yaml` files in TypeScript 5+ with autocomplete and type checking.
 
 <sub>![Example](https://raw.githubusercontent.com/cabralpinto/typescript-yaml-plugin/refs/heads/main/assets/image.png)</sub>
 
@@ -45,6 +45,7 @@ Make sure your editor is using the workspace version of TypeScript (the one wher
 - This plugin uses the [`yaml`](https://www.npmjs.com/package/yaml) package under the hood. Supported features and limitations are fully inherited from that library.
 - This plugin is **only for editor support** (autocomplete and type-checking). It does **not** make `.yaml` files work at runtime. To actually be able to import YAML files in your running code, you’ll need to pair this with a runtime plugin that handles `.yaml` files like [`bun-plugin-yaml`](https://www.npmjs.com/package/bun-plugin-yaml)
 or [`vite-plugin-yaml`](https://www.npmjs.com/package/vite-plugin-yaml), depending on your runtime.
+- This plugin was inspired by [`typescript-plugin-yaml`](https://github.com/await-ovo/typescript-plugin-yaml), which is no longer maintained and does not support TypeScript 5+.
 
 ## Contributing
 
