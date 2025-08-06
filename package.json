@@ -1,6 +1,17 @@
 {
   "name": "typescript-yaml-plugin",
-  "version": "1.0.2",
+  "version": "1.0.3",
+  "description": "TypeScript Language Service plugin for YAML",
+  "keywords": ["typescript", "plugin", "yaml", "language-service", "ts-plugin", "intellisense", "autocomplete"],
+  "author": "João Cabral Pinto",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cabralpinto/typescript-yaml-plugin.git"
+  },
+  "homepage": "https://github.com/cabralpinto/typescript-yaml-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/cabralpinto/typescript-yaml-plugin/issues"
+  },
   "license": "MIT",
   "main": "./dist/index.js",
   "files": [
@@ -10,6 +21,9 @@
   "scripts": {
     "build": "tsc",
     "format": "prettier --write ."
+  },
+  "engines": {
+    "typescript": ">=5.0"
   },
   "dependencies": {
     "typescript": "^5.9.2",
