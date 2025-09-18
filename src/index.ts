@@ -33,16 +33,59 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
         ).map((resolvedModule, index) => {
           const moduleName = moduleLiterals[index].text;
           if (!/\.ya?ml$/.test(moduleName)) return resolvedModule;
+
+          if (resolvedModule.resolvedModule?.resolvedFileName) {
+            return {
+              ...resolvedModule,
+              resolvedModule: {
+                ...resolvedModule.resolvedModule,
+                extension: ts_.Extension.Ts,
+                isExternalLibraryImport: false,
+              }
+            };
+          }
+
+          const resolvedPath = resolvePathCustom(moduleName, containingFile);
           return {
             ...resolvedModule,
             resolvedModule: {
               extension: ts_.Extension.Ts,
               isExternalLibraryImport: false,
-              resolvedFileName: path.resolve(path.dirname(containingFile), moduleName)
+              resolvedFileName: resolvedPath
             }
           };
         })
     } as Partial<ts.LanguageServiceHost>;
+    const resolvePathCustom = (moduleName: string, containingFile: string): string => {
+      if (moduleName.startsWith('./') || moduleName.startsWith('../')) {
+        return path.resolve(path.dirname(containingFile), moduleName);
+      }
+
+      const compilerOptions = info.languageServiceHost.getCompilationSettings() || {};
+      if (compilerOptions.paths && compilerOptions.baseUrl) {
+        for (const [pattern, substitutions] of Object.entries(compilerOptions.paths)) {
+          const regexPattern = pattern.replace(/\*/g, '(.*)');
+          const regex = new RegExp('^' + regexPattern + '$');
+          const match = moduleName.match(regex);
+
+          if (match) {
+            for (const substitution of substitutions) {
+              let resolvedPattern = substitution;
+              for (let i = 1; i < match.length; i++) {
+                resolvedPattern = resolvedPattern.replace('*', match[i]);
+              }
+
+              const resolvedPath = path.resolve(compilerOptions.baseUrl, resolvedPattern);
+              if (fs.existsSync(resolvedPath)) {
+                return resolvedPath;
+              }
+            }
+          }
+        }
+      }
+
+      return path.resolve(path.dirname(containingFile), moduleName);
+    };
     const languageServiceHostProxy = new Proxy(info.languageServiceHost, {
       get: (target, key: keyof ts.LanguageServiceHost) =>
         languageServiceHost[key] ? languageServiceHost[key] : target[key]

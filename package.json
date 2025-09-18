@@ -1,6 +1,6 @@
 {
   "name": "typescript-yaml-plugin",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "TypeScript Language Service plugin for YAML",
   "keywords": ["typescript", "ts", "typescript-5", "ts-5", "yaml", "yml", "plugin", "language-service", "intellisense", "autocomplete"],
   "author": "João Cabral Pinto",
