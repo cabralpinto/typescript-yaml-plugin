@@ -14,10 +14,12 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
       if (/\.ya?ml$/.test(fileName)) return ts_.ScriptKind.TS;
       return getScriptKind(fileName);
     };
+    const fileExists = languageServiceHost.fileExists.bind(languageServiceHost);
     const getScriptSnapshot =
       languageServiceHost.getScriptSnapshot.bind(languageServiceHost);
     languageServiceHost.getScriptSnapshot = fileName => {
       if (!/\.ya?ml$/.test(fileName)) return getScriptSnapshot(fileName);
+      if (!fileExists(fileName)) return;
       const content = fs.readFileSync(fileName, 'utf8');
       let object;
       try {
