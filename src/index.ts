@@ -14,7 +14,12 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
       if (/\.ya?ml$/.test(fileName)) return ts_.ScriptKind.TS;
       return getScriptKind(fileName);
     };
+    let resolvedFileName: string;
     const fileExists = languageServiceHost.fileExists.bind(languageServiceHost);
+    languageServiceHost.fileExists = path => {
+      if (/(?:\.ya?ml|\*)\.ts$/.test(path)) resolvedFileName = path.slice(0, -3);
+      return fileExists(path);
+    };
     const getScriptSnapshot =
       languageServiceHost.getScriptSnapshot.bind(languageServiceHost);
     languageServiceHost.getScriptSnapshot = fileName => {
@@ -46,7 +51,7 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
             resolvedModule: {
               extension: ts_.Extension.Ts,
               isExternalLibraryImport: false,
-              resolvedFileName: path.resolve(path.dirname(containingFile), moduleName)
+              resolvedFileName
             }
           };
         }
@@ -61,16 +66,21 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
           formattingSettings
         );
         if (!completions) return completions;
-        let importPath = languageService
-          .getProgram()
-          ?.getSourceFile(fileName)
+        const program = info.languageService.getProgram();
+        if (!program) return completions;
+        const moduleName = program
+          .getSourceFile(fileName)
           ?.getFullText()
           .slice(0, position)
           .match(/(?<=(?:import(?:\(|\s?)|require\(|from\s?)["']).+?$/s)?.[0];
-        if (!importPath) return completions;
-        if (importPath.startsWith('.'))
-          importPath = path.resolve(path.dirname(fileName), importPath);
-        fs.globSync(path.resolve(importPath, '*.{yaml,yml}'))
+        if (!moduleName) return completions;
+        ts_.resolveModuleName(
+          moduleName,
+          fileName,
+          program.getCompilerOptions(),
+          languageServiceHost
+        );
+        fs.globSync(`${resolvedFileName}.{yaml,yml}`)
           .map(fileName => path.basename(fileName))
           .forEach(baseFileName =>
             completions.entries.push({
