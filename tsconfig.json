@@ -1,7 +1,7 @@
 {
   "paths": ["src/**"],
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2018",
     "module": "commonjs",
     "sourceMap": true,
     "outDir": "./dist",
