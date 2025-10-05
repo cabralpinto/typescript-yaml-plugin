@@ -68,7 +68,7 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
         if (!importPath) return completions;
         if (importPath.startsWith('.'))
           importPath = path.resolve(path.dirname(fileName), importPath);
-        fs.globSync(`${importPath}*.{yaml,yml}`)
+        fs.globSync(path.resolve(importPath, '*.{yaml,yml}'))
           .map(fileName => path.basename(fileName))
           .forEach(baseFileName =>
             completions.entries.push({
