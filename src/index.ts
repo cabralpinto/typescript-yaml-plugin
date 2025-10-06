@@ -14,12 +14,7 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
       if (/\.ya?ml$/.test(fileName)) return ts_.ScriptKind.TS;
       return getScriptKind(fileName);
     };
-    let resolvedFileName: string;
     const fileExists = languageServiceHost.fileExists.bind(languageServiceHost);
-    languageServiceHost.fileExists = path => {
-      if (/(?:\.ya?ml|\*)\.ts$/.test(path)) resolvedFileName = path.slice(0, -3);
-      return fileExists(path);
-    };
     const getScriptSnapshot =
       languageServiceHost.getScriptSnapshot.bind(languageServiceHost);
     languageServiceHost.getScriptSnapshot = fileName => {
@@ -51,7 +46,7 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
             resolvedModule: {
               extension: ts_.Extension.Ts,
               isExternalLibraryImport: false,
-              resolvedFileName
+              resolvedFileName: resolvedModule.failedLookupLocations[1].slice(0, -3)
             }
           };
         }
@@ -66,21 +61,19 @@ export = ({ typescript: ts_ }: { typescript: typeof ts }) => ({
           formattingSettings
         );
         if (!completions) return completions;
-        const program = info.languageService.getProgram();
-        if (!program) return completions;
-        const moduleName = program
-          .getSourceFile(fileName)
-          ?.getFullText()
-          .slice(0, position)
-          .match(/(?<=(?:import(?:\(|\s?)|require\(|from\s?)["']).+?$/s)?.[0];
-        if (!moduleName) return completions;
-        ts_.resolveModuleName(
-          moduleName,
+        const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
+        if (!sourceFile) return completions;
+        const token = ts_.getTokenAtPosition(sourceFile, position);
+        if (!ts_.isModuleSpecifierLike(token)) return completions;
+        const [{ failedLookupLocations }] = resolveModuleNameLiterals(
+          [token as ts.StringLiteralLike],
           fileName,
-          program.getCompilerOptions(),
-          languageServiceHost
+          undefined,
+          info.project.getCompilerOptions(),
+          sourceFile,
+          undefined
         );
-        fs.globSync(`${resolvedFileName}.{yaml,yml}`)
+        fs.globSync(`${path.dirname(failedLookupLocations[0])}/*.{yaml,yml}`)
           .map(fileName => path.basename(fileName))
           .forEach(baseFileName =>
             completions.entries.push({
